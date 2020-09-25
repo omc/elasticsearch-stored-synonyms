@@ -1,0 +1,8 @@
+{
+  "name": "greetings",
+  "rules": [
+    "hello,aloha",
+    "goodbye,aloha",
+    "danke,aloha"
+  ]
+}
