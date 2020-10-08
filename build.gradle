@@ -1,0 +1,108 @@
+plugins {
+  id "java"
+  id "eclipse"
+  id "com.diffplug.spotless" version "5.6.1"
+}
+
+ext {
+  versions = [
+    "elasticsearch": System.getenv("esVersion") ?: project.properties['esVersion'],
+    "log4j"        : "2.6.2"
+  ]
+}
+
+spotless {
+  java {
+    importOrder()
+    removeUnusedImports()
+    googleJavaFormat()
+  }
+}
+
+repositories {
+  mavenLocal()
+  mavenCentral()
+  jcenter()
+}
+
+configurations {
+  releaseJars {
+    extendsFrom runtime
+    exclude group: "org.elasticsearch"
+    exclude group: "org.apache.logging.log4j"
+  }
+}
+
+version = pluginVersion + '_es' + versions.elasticsearch
+
+dependencies {
+  compile "org.elasticsearch:elasticsearch:${versions.elasticsearch}"
+  compile "org.apache.logging.log4j:log4j-api:${versions.log4j}"
+
+  testCompile "org.codelibs:elasticsearch-cluster-runner:${versions.elasticsearch}.0"
+  testCompile "junit:junit:4.13"
+  testCompile "org.mockito:mockito-all:1.9.5"
+  
+  releaseJars "${project.group}:${project.name}:${version}"
+}
+
+repositories {
+  mavenCentral()
+  maven { url 'https://repo.gradle.org/gradle/libs-releases-local' }
+  jcenter()
+}
+
+//-------------------
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs << "-Xlint:unchecked,deprecation"
+}
+
+task javadocJar(type: Jar, dependsOn: classes) {
+  from javadoc
+  into "build/tmp"
+  classifier "javadoc"
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+  from sourceSets.main.allSource
+  into "build/tmp/sources"
+  classifier "sources"
+}
+
+task copyPluginFiles(type: Copy) {
+  from "src/main/templates"
+  into "build/tmp/plugin"
+  expand([
+    "descriptor": [
+      "name"                : pluginName,
+      "classname"           : pluginClassname,
+      "description"         : pluginDescription,
+      "version"             : version,
+      "javaVersion"         : project.property("targetCompatibility"),
+      "elasticsearchVersion": versions.elasticsearch
+    ]
+  ])
+  outputs.upToDateWhen { false }
+}
+
+task buildPluginZip(type: Zip, dependsOn: [":jar", "copyPluginFiles"]) {
+  from configurations.releaseJars
+  from "build/tmp/plugin"
+  from "src/main/config"
+}
+
+artifacts {
+  archives sourcesJar, buildPluginZip
+}
+
+test {
+  testLogging {
+    showStandardStreams = false
+    events "passed", "skipped", "failed"
+    exceptionFormat = 'full'
+  }
+  maxHeapSize = '2g'
+  useJUnit()
+  failFast = true
+}

@@ -1,0 +1,12 @@
+.classpath
+.gradle/
+.project
+.settings/
+bin/
+build/
+.local/
+*.log
+/src/test/resources/org
+/src/test/resources/rest-api-spec
+dist
+.cache

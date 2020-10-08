@@ -1,0 +1,9 @@
+{
+  "properties": {
+    "greeting": {
+      "type": "text",
+      "analyzer": "standard",
+      "search_analyzer": "greeting_analyzer"
+    }
+  }
+}
