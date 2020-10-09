@@ -4,14 +4,21 @@ on:
     tags:
     - 'v*_es*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
-name: Upload Release Asset
+name: release
 
 jobs:
   build:
-    name: Upload Release Asset
+    name: release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Extract Versions
+        id: extract_versions
+        run: |
+          BUILD_STRING="echo ${GITHUB_REF#refs/tags/} | sed -r 's/v(.+)/\1/g'"
+          ES_VERSION="echo ${GITHUB_REF#refs/tags/} | sed -r 's/v.+_es(.+)$/\1/g'"
+          echo ::set-output name=BUILD_STRING::${BUILD_STRING}
+          echo ::set-output name=ES_VERSION::${ES_VERSION}
       - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
@@ -25,9 +32,9 @@ jobs:
       - uses: eskatos/gradle-command-action@v1
         env:
           GPR_AUTH_TOKEN: ${{secrets.GPR_AUTH_TOKEN}}
+          ES_VERSION: ${{ steps.extract_versions.outputs.ES_VERSION }}
         with:
-          arguments: clean check assemble
-
+          arguments: esVersion=${ES_VERSION} clean check assemble
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -43,8 +50,9 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_STRING: ${{ steps.extract_versions.outputs.BUILD_STRING }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/stored-synonyms-${{ github.ref }}.zip
-          asset_name: stored-synonyms-${{ github.ref }}.zip
+          asset_path: build/distributions/stored-synonyms-${{ BUILD_STRING }}.zip
+          asset_name: stored-synonyms-${{ BUILD_STRING }}.zip
           asset_content_type: application/zip
