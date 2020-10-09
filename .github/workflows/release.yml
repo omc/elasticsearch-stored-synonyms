@@ -16,10 +16,10 @@ jobs:
         id: extract_versions
         run: |
           BUILD_STRING="echo ${GITHUB_REF#refs/tags/} | sed -r 's/v(.+)/\1/g'"
-          ES_VERSION="echo ${GGPR_AUTH_TOKEN
-          echo ::set-output naGPR_AUTH_TOKEN
-          echo ::set-output naGPR_AUTH_TOKEN
-      - uses: actions/cache@v1GPR_AUTH_TOKEN
+          ES_VERSION="echo ${GITHUB_REF#refs/tags/} | sed -r 's/v.+_es(.+)$/\1/g'"
+          echo ::set-output name=BUILD_STRING::${BUILD_STRING}
+          echo ::set-output name=ES_VERSION::${ES_VERSION}
+      - uses: actions/cache@v1
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
