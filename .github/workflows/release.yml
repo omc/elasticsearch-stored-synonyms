@@ -50,9 +50,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BUILD_STRING: ${{ steps.extract_versions.outputs.BUILD_STRING }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: build/distributions/stored-synonyms-${BUILD_STRING}.zip
-          asset_name: stored-synonyms-${BUILD_STRING}.zip
+          asset_path: build/distributions/stored-synonyms-${{ steps.extract_versions.outputs.BUILD_STRING }}.zip
+          asset_name: stored-synonyms-${{ steps.extract_versions.outputs.BUILD_STRING }}.zip
           asset_content_type: application/zip
