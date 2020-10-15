@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.SimpleAnalyzer;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.synonym.SolrSynonymParser;
 import org.apache.lucene.analysis.synonym.SynonymMap;
 import org.elasticsearch.rest.RestStatus;
@@ -66,7 +66,7 @@ public class StoredSynonyms {
   public static void validate(StoredSynonyms synonyms) {
     SynonymMap map;
     try {
-      map = parseSynonymMap(new SimpleAnalyzer(), synonyms.getRules());
+      map = parseSynonymMap(new WhitespaceAnalyzer(), synonyms.getRules());
     } catch (Exception error) {
       throw new StoredSynonymsException(error, RestStatus.UNPROCESSABLE_ENTITY);
     }
