@@ -62,8 +62,7 @@ public class RestTests extends BaseClusterTest {
             .body(getResourceStr("files/invalid_synonyms.json"))
             .execute()) {
       Assert.assertEquals(422, curlResponse.getHttpStatusCode());
-      Assert.assertTrue(
-          curlResponse.getContentAsString().contains("Invalid synonym rule at line 1"));
+      Assert.assertTrue(curlResponse.getContentAsString().contains("No rules accepted"));
     }
   }
 }
