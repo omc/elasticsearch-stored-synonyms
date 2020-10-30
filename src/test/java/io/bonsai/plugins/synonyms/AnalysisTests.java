@@ -59,11 +59,6 @@ public class AnalysisTests extends BaseClusterTest {
       Assert.assertEquals(200, curlResponse.getHttpStatusCode());
     }
 
-    //    cluster.refresh();
-    //    Thread.sleep(100);
-
-    System.err.println("Pre assert search");
-
     response =
         cluster.search(
             "myindex",
@@ -84,9 +79,6 @@ public class AnalysisTests extends BaseClusterTest {
             .execute()) {
       Assert.assertEquals(200, curlResponse.getHttpStatusCode());
     }
-
-    //    cluster.refresh();
-    //    Thread.sleep(100);
 
     response =
         cluster.search(
