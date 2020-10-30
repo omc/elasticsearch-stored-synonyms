@@ -93,6 +93,19 @@ And the output looks like:
 }
 ```
 
+### Fetching and Deleting Synonym Rulesets
+
+Fetching a ruleset with name `my_synonyms`
+
+```
+curl '0:9200/_stored_synonyms/my_synonyms'
+```
+
+Deleting a ruleset with name `my_synonyms`
+
+```
+curl -XDELETE '0:9200/_stored_synonyms/my_synonyms'
+```
 
 #### Generating a Plugin Zip
 
