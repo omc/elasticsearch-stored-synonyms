@@ -200,6 +200,7 @@ public class SynonymsTransportInvalidateAction
 
     public NodeRequest(StreamInput in) throws IOException {
       super(in);
+      request = new InvalidateRequest(in);
     }
 
     public NodeRequest(final InvalidateRequest request) {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.elasticsearch.action.support.master.AcknowledgedResponse;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.xcontent.XContentType;
 import org.junit.After;
 import org.junit.Assert;
@@ -15,11 +16,31 @@ public class BaseClusterTest implements TestSupport {
 
   @Before
   public void setUp() {
+    String clusterName = "es-cl-run-" + System.currentTimeMillis();
     cluster = new ElasticsearchClusterRunner();
+
+    cluster.onBuild(
+        new ElasticsearchClusterRunner.Builder() {
+          @Override
+          public void build(final int number, final Builder settingsBuilder) {
+            settingsBuilder.put("http.cors.enabled", true);
+            settingsBuilder.put("http.cors.allow-origin", "*");
+            settingsBuilder.putList(
+                "discovery.seed_hosts", "127.0.0.1:9300", "127.0.0.1:9301", "127.0.0.1:9302");
+            settingsBuilder.putList("cluster.initial_master_nodes", "127.0.0.1:9300");
+          }
+        });
+
     cluster.build(
         ElasticsearchClusterRunner.newConfigs()
-            .numOfNode(1) // Create a test node, default number of node is 3.
+            .clusterName(clusterName)
+            .useLogger()
+            .disableESLogger()
+            .useLogger()
+            .numOfNode(3)
             .pluginTypes("io.bonsai.plugins.synonyms.StoredSynonymsPlugin"));
+
+    cluster.ensureYellow();
   }
 
   @After

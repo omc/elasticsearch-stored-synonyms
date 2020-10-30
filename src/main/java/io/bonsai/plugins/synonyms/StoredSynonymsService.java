@@ -124,8 +124,23 @@ public class StoredSynonymsService extends LifecycleListener implements ClusterS
         set,
         ActionListener.wrap(
             (indexResponse) -> {
-              invalidateSynonymSet(set.getName());
-              listener.onResponse(indexResponse);
+              invalidateSynonymSet(
+                  set.getName(),
+                  ActionListener.wrap(
+                      (invalidateResponse) -> {
+                        log.info(
+                            "Refreshed synonym cache for {} on {} nodes {} failures",
+                            set.getName(),
+                            invalidateResponse.getNodes().size(),
+                            invalidateResponse.failures().size());
+
+                        if (invalidateResponse.hasFailures()) {
+                          invalidateResponse.failures().forEach(log::warn);
+                        }
+
+                        listener.onResponse(indexResponse);
+                      },
+                      listener::onFailure));
             },
             listener::onFailure));
   }
@@ -136,8 +151,17 @@ public class StoredSynonymsService extends LifecycleListener implements ClusterS
         collectionName,
         ActionListener.wrap(
             (deleteResponse) -> {
-              invalidateSynonymSet(collectionName);
-              listener.onResponse(deleteResponse);
+              invalidateSynonymSet(
+                  collectionName,
+                  ActionListener.wrap(
+                      (invalidateResponse) -> {
+                        log.info(
+                            "Expired synonym cache for {} on {} nodes",
+                            collectionName,
+                            invalidateResponse.getNodes().size());
+                        listener.onResponse(deleteResponse);
+                      },
+                      listener::onFailure));
             },
             listener::onFailure));
   }
@@ -171,10 +195,12 @@ public class StoredSynonymsService extends LifecycleListener implements ClusterS
                 listener::onFailure));
   }
 
-  private void invalidateSynonymSet(String name) {
-    InvalidateResponse response =
-        InvalidateAction.INSTANCE.newRequestBuilder(client).setTimeout("10s").setName(name).get();
-    log.info("Invalidated {} on {} nodes", name, response.getNodes().size());
+  private void invalidateSynonymSet(String name, ActionListener<InvalidateResponse> callback) {
+    InvalidateAction.INSTANCE
+        .newRequestBuilder(client)
+        .setTimeout("10s")
+        .setName(name)
+        .execute(callback);
   }
 
   protected void reload(String name) throws Exception {
