@@ -26,7 +26,7 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.cluster.ClusterChangedEvent;
 import org.elasticsearch.cluster.ClusterStateListener;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import org.elasticsearch.cluster.metadata.IndexMetadata;
 import org.elasticsearch.cluster.service.ClusterService;
 import org.elasticsearch.common.bytes.BytesReference;
 import org.elasticsearch.common.component.LifecycleListener;
@@ -282,8 +282,8 @@ public class StoredSynonymsService extends LifecycleListener implements ClusterS
 
               Settings indexSettings =
                   Settings.builder()
-                      .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
-                      .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 1)
+                      .put(IndexMetadata.SETTING_NUMBER_OF_SHARDS, 1)
+                      .put(IndexMetadata.SETTING_NUMBER_OF_REPLICAS, 1)
                       .build();
 
               client
