@@ -38,6 +38,7 @@ import org.elasticsearch.indices.analysis.AnalysisModule;
 import org.elasticsearch.plugins.ActionPlugin;
 import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
+import org.elasticsearch.repositories.RepositoriesService;
 import org.elasticsearch.rest.RestController;
 import org.elasticsearch.rest.RestHandler;
 import org.elasticsearch.script.ScriptService;
@@ -64,7 +65,8 @@ public class StoredSynonymsPlugin extends Plugin implements AnalysisPlugin, Acti
       Environment environment,
       NodeEnvironment nodeEnvironment,
       NamedWriteableRegistry namedWriteableRegistry,
-      IndexNameExpressionResolver indexNameExpressionResolver) {
+      IndexNameExpressionResolver indexNameExpressionResolver,
+      Supplier<RepositoriesService> repositoriesServiceSupplier) {
 
     // Set up the synonym service
     service = new StoredSynonymsService(client, clusterService, ".stored_synonyms");
