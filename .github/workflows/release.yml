@@ -29,7 +29,7 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 8.0.x
-      - uses: eskatos/gradle-command-action@v1
+      - uses: eskatos/gradle-command-action@v2
         env:
           GPR_AUTH_TOKEN: ${{secrets.GPR_AUTH_TOKEN}}
           esVersion: ${{ steps.extract_versions.outputs.ES_VERSION }}
