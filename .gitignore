@@ -10,3 +10,4 @@ build/
 /src/test/resources/rest-api-spec
 dist
 .cache
+.idea
